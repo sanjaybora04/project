@@ -1,20 +1,22 @@
-import { useRef, useState, useEffect } from 'react';
-import { useSelector } from 'react-redux'
-import api from '/src/api'
-import Subject from './subject'
+import Business from './business'
+import { useGetBusinessQuery} from '../redux/businessReducer';
 
 const Home = () => {
-    const subjects = useSelector(state => state.profile.subjects)
-    const [attendance,setAttendance] = useState(null)
-    const overallAttendance = ()=>{
-        api.post('/student/stats')
-        .then(response=>{
-            setAttendance(response.data.attendance)
-        })
+    const {data, error, isLoading} = useGetBusinessQuery()
+    
+    let businesses
+    if(isLoading){
+        console.log(isLoading)
+        businesses = [1,2,3]
     }
-    useEffect(()=>{
-        overallAttendance()
-    },[])
+    else if(error){
+        businesses = [1,2]
+        console.log(error)
+    }
+    else{
+        console.log(data)
+        businesses = data.list
+    }
 
     return (
         <div className="flex flex-col bg-clip-border rounded-xl bg-white text-gray-700 shadow-md">
@@ -24,9 +26,6 @@ const Home = () => {
                     Subjects
                 </h6>
             </div>
-            <div className={'block m-2 p-2 rounded-lg text-center '+(attendance>=75?"bg-green-200":"bg-red-200")}>
-                OverAll Attendance :- {attendance}%
-            </div><hr className='border-green-600'/>
 
             {/* Subjects list */}
             <div className="p-6 overflow-x-scroll px-0 pt-0 pb-2">
@@ -35,7 +34,7 @@ const Home = () => {
                         <tr className='flex justify-between'>
                             <th className="border-b w-1/4 border-green-600 py-3 px-5 text-center">
                                 <p className="block antialiased font-sans text-sm font-bold">
-                                    Subject
+                                    Business
                                 </p>
                             </th>
                             <th className="border-b w-1/4 border-green-600 py-3 px-5 text-center">
@@ -55,8 +54,8 @@ const Home = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {subjects.list.map(subject => {
-                            return <Subject subject={subject} live={subjects.live}/>
+                        {businesses.map(business => {
+                            return <Business business={business}/>
                         })}
                     </tbody>
                 </table>
